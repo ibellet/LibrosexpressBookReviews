@@ -1,93 +1,66 @@
-
-
 // auth_users.js
 
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const books = require("./booksdb.js");
+const express = require("express");
+const jwt = require("jsonwebtoken");
+let books = require("./booksdb.js");
 const regd_users = express.Router();
 
-let users = {};
+let users = [];
 
 const isValid = (username) => {
-    // Check if the username exists in the users object
-    return users.hasOwnProperty(username);
-}
+  //returns boolean
+  //write code to check if the username is valid
+};
 
 const authenticatedUser = (username, password) => {
-    // Check if the username and password match
-    return users[username] === password;
-}
+  let validusers = users.filter((user) => {
+    return user.userName === username && user.password === password;
+  });
+  return validusers.length > 0;
+};
 
-// Only registered users can login
 regd_users.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    // Check if username and password are provided
-    if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-    }
+  const userName = req.body.userName;
+  const password = req.body.password;
 
-    // Check if the username exists
-    if (!isValid(username)) {
-        return res.status(401).json({ message: "Invalid username" });
-    }
+  if (!userName || !password) {
+    return res.status(400).json({ message: "Error logging in" });
+  }
 
-    // Check if the username and password match
-    if (!authenticatedUser(username, password)) {
-        return res.status(401).json({ message: "Invalid username or password" });
-    }
+  if (authenticatedUser(userName, password)) {
+    let accessToken = jwt.sign(
+      {
+        data: password,
+      },
+      "access",
+      { expiresIn: 60 * 60 }
+    );
 
-    // Generate and return JWT token
-    const token = jwt.sign({ username: username }, "secret_key");
-    return res.status(200).json({ token: token });
+    req.session.authorization = {
+      accessToken,
+      userName,
+    };
+    return res.status(200).json({ message: "User successfully logged in", accessToken });
+  } else {
+    return res.status(401).json({ message: "Invalid Login. Check username and password" });
+  }
 });
 
-// Add or modify a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    const username = req.user.username; // Get username from JWT token in the session
-    const isbn = req.params.isbn;
-    const review = req.query.review;
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  const userName = req.userName;
 
-    if (!review) {
-        return res.status(400).json({ message: "Review is required" });
-    }
-
-    if (!books.hasOwnProperty(isbn)) {
-        return res.status(404).json({ message: "Book not found" });
-    }
-
-    // Check if the user has already reviewed the book
-    if (books[isbn].reviews && books[isbn].reviews.hasOwnProperty(username)) {
-        // Modify the existing review
-        books[isbn].reviews[username] = review;
-    } else {
-        // Add a new review
-        if (!books[isbn].reviews) {
-            books[isbn].reviews = {};
-        }
-        books[isbn].reviews[username] = review;
-    }
-
-    return res.status(200).json({ message: "Review added/modified successfully" });
+  books[isbn].reviews[userName] = review;
+  return res.status(300).json({ message: "review added" });
 });
 
-// Register a new user
-regd_users.post("/register", (req, res) => {
-    const { username, password } = req.body;
-    // Check if username and password are provided
-    if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
-    }
-  
-    // Check if username already exists
-    if (isValid(username)) {
-        return res.status(400).json({ message: "Username already exists" });
-    }
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const userName = req.userName;
 
-    // Store the new user information
-    users[username] = password;
-  
-    return res.status(201).json({ message: "User registered successfully" });
+  delete books[isbn].reviews[userName];
+  return res.status(300).json({ message: "review deleted" });
 });
 
 module.exports.authenticated = regd_users;
