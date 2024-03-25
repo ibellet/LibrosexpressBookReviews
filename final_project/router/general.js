@@ -92,6 +92,33 @@ public_users.get('/isbn/:isbn',function (req, res) {
      // Return the array of books with the specified author
      return res.status(200).json({ books: booksWithAuthor });
  });
+
+
+// Get book details based on author with promises
+// public_users.get("/auth/:author", async function (req, res) {
+//     //Write your code here
+//     const author = req.params.author;
+//     const booksByAuthor = [];
+
+//     // Iterate through the keys of the 'books' object
+//     for (const key in books) {
+//         if (books.hasOwnProperty(key)) {
+//             const book = books[key];
+//             // Check if the author of the current book matches the requested author
+//             if (book.author === author) {
+//                 // If it matches, add the book to the 'booksByAuthor' array
+//                 booksByAuthor.push(book);
+//             }
+//         }
+//     }
+
+//     if (booksByAuthor.length > 0) {
+//         return res.status(200).json({ books: booksByAuthor });
+//     } else {
+//         return res.status(404).json({ message: "Books by author not found" });
+//     }
+// });
+
  
 
 
