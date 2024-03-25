@@ -44,6 +44,22 @@ public_users.get('/isbn/:isbn',function (req, res) {
   return res.send(books[isbn]) 
  });
 
+// Get book details based on ISBN with promises
+//public_users.get("/isbn/:isbn", async function (req, res) {
+    //Write your code here
+    //const promise = new Promise((resolve, reject) => {
+      //setTimeout(() => resolve(books[req.params.isbn]), 100);
+    //});
+  
+    //const book = await promise;
+  
+    //if (book) {
+      //return res.status(200).json({ book });
+    //} else {
+      //return res.status(404).json({ message: "Book not found" });
+    //}
+  //});
+
    public_users.get('/author/:author', function (req, res) {
      const author = req.params.author; // Get the author from request parameters
      const booksWithAuthor = []; // Initialize an array to store books with the specified author
