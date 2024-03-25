@@ -38,6 +38,19 @@ public_users.get('/',function (req, res) {
   
 });
 
+// Get the book list available in the shop with promises
+// public_users.get("/", function (req, res) {
+//     //Write your code here
+//     const promise = new Promise((resolve, reject) => {
+//       setTimeout(() => resolve(books), 100);
+//     });
+  
+//     promise.then((result) => {
+//       return res.status(200).json({ books: result });
+//     });
+//   });
+
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   const isbn = req.params.isbn;
